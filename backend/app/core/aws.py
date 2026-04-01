@@ -84,8 +84,7 @@ async def update_job(job_id: str, status: str, s3_key: str = "", error: str = ""
                 ":s": status,
                 ":k": s3_key,
                 ":e": error,
-                ":u": ist_now()
-                ()
+                ":u": ist_now(),
             },
         )
 
