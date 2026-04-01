@@ -7,7 +7,7 @@ export default function ReviewPage() {
   const {
     upload, editedText, roastMode,
     setEditedText, setRoastMode,
-    setJobId, addStatus, setReport,
+    addStatus, setReport,
     setIsAnalyzing, setError,
   } = useAnalysisStore();
 
