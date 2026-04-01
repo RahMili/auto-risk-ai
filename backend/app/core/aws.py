@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta, timezone
 import json
 import aioboto3
 from fastapi import UploadFile
@@ -10,6 +11,11 @@ session = aioboto3.Session(
     aws_secret_access_key=settings.aws_secret_access_key,
     region_name=settings.aws_region,
 )
+
+IST = timezone(timedelta(hours=5, minutes=30))
+
+def ist_now() -> str:
+    return datetime.now(IST).isoformat()
 
 
 async def save_upload_to_s3(file_id: str, file: UploadFile, content: bytes, extracted_text: str) -> str:
@@ -59,6 +65,8 @@ async def create_job(job_id: str) -> None:
         await table.put_item(Item={
             "job_id": job_id,
             "status": "processing",
+            "created_at": ist_now(),
+            "updated_at": ist_now(),
         })
 
 
@@ -67,7 +75,7 @@ async def update_job(job_id: str, status: str, s3_key: str = "", error: str = ""
         table = await dynamodb.Table(settings.dynamodb_table_name)
         await table.update_item(
             Key={"job_id": job_id},
-            UpdateExpression="SET #s = :s, s3_key = :k, #e = :e",
+            UpdateExpression="SET #s = :s, s3_key = :k, #e = :e, updated_at = :u",
             ExpressionAttributeNames={
                 "#s": "status",
                 "#e": "error_message",
@@ -76,6 +84,8 @@ async def update_job(job_id: str, status: str, s3_key: str = "", error: str = ""
                 ":s": status,
                 ":k": s3_key,
                 ":e": error,
+                ":u": ist_now()
+                ()
             },
         )
 
