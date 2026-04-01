@@ -29,6 +29,7 @@ class Settings(BaseSettings):
     s3_report_bucket_name: str = "auto-risk-ai-reports-rm"
     s3_uploads_bucket_name: str = ""
     dynamodb_table_name: str = "autorisk-jobs"
+    ec2_public_ip: str = ""
 
     # App
     app_name: str = "AutoRisk AI"

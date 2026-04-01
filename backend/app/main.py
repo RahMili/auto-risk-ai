@@ -17,7 +17,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",         # local dev
-        "http://13.126.195.191",     # production
+        f"http://{settings.ec2_public_ip}",     # production
     ],
     allow_credentials = True,
     allow_methods = ["*"],
