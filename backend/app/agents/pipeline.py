@@ -144,7 +144,12 @@ async def run_pipeline(
         )
 
         await update_job(job_id, "complete", accumulated_state["s3_key"])
-        yield f"result:{report.model_dump_json()}\n"
+        # yield f"result:{report.model_dump_json()}\n"
+        result_json = report.model_dump_json()
+        chunk_size = 1024
+        for i in range(0, len(result_json), chunk_size):
+            yield f"chunk:{result_json[i:i+chunk_size]}\n"
+        yield "done:\n"
 
     except Exception as e:
         logger.exception(f"Pipeline failed for job {job_id}")

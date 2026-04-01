@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { UploadResponse } from "../types/analysis";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+const BASE_URL = import.meta.env.VITE_API_URL || "/api";
 
 export const api = axios.create({
   baseURL: BASE_URL,
@@ -28,6 +28,7 @@ export function streamAnalysis(
   formData.append("roast_mode", String(roastMode));
 
   const controller = new AbortController();
+  let resultBuffer = "";
 
   fetch(`${BASE_URL}/analyze`, {
     method: "POST",
@@ -47,8 +48,11 @@ export function streamAnalysis(
       for (const line of lines) {
         if (line.startsWith("status:")) {
           onStatus(line.replace("status:", "").trim());
-        } else if (line.startsWith("result:")) {
-          onResult(line.replace("result:", "").trim());
+        } else if (line.startsWith("chunk:")) {
+          resultBuffer += line.replace("chunk:", "");
+        } else if (line.startsWith("done:")) {
+          onResult(resultBuffer);
+          resultBuffer = "";
         } else if (line.startsWith("error:")) {
           onError(line.replace("error:", "").trim());
         }
