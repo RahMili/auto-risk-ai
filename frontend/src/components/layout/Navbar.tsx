@@ -2,16 +2,17 @@ import { Link } from "react-router-dom";
 
 export default function Navbar() {
   return (
-    <nav className="border-b border-gray-200 bg-white px-6 py-4 flex items-center justify-between">
+    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[#0a0a0a]/80 backdrop-blur-sm px-6 py-4 flex items-center justify-between">
       <Link to="/" className="flex items-center gap-2">
-        <span className="text-2xl">🚦</span>
-        <span className="font-bold text-gray-900 text-lg">AutoRisk AI</span>
+        <span className="text-xl">🚦</span>
+        <span className="font-black text-white tracking-tight">AutoRisk AI</span>
       </Link>
-      <div className="flex items-center gap-6 text-sm text-gray-600">
-        <Link to="/upload" className="hover:text-gray-900 transition-colors">
-          Analyze Resume
-        </Link>
-      </div>
+      <Link
+        to="/upload"
+        className="text-sm font-medium text-white/60 hover:text-white transition-colors"
+      >
+        Analyze Resume
+      </Link>
     </nav>
   );
 }
