@@ -29,6 +29,7 @@ export function streamAnalysis(
 
   const controller = new AbortController();
   let resultBuffer = "";
+  let lineBuffer = "";  // holds incomplete lines between network packets
 
   fetch(`${BASE_URL}/analyze`, {
     method: "POST",
@@ -42,10 +43,15 @@ export function streamAnalysis(
       const { done, value } = await reader.read();
       if (done) break;
 
-      const chunk = decoder.decode(value);
-      const lines = chunk.split("\n").filter(Boolean);
+      // prepend any leftover from previous packet
+      const text = lineBuffer + decoder.decode(value);
+      const lines = text.split("\n");
+
+      // last element may be incomplete — save it for next packet
+      lineBuffer = lines.pop() || "";
 
       for (const line of lines) {
+        if (!line.trim()) continue;
         if (line.startsWith("status:")) {
           onStatus(line.replace("status:", "").trim());
         } else if (line.startsWith("chunk:")) {
@@ -56,6 +62,15 @@ export function streamAnalysis(
         } else if (line.startsWith("error:")) {
           onError(line.replace("error:", "").trim());
         }
+      }
+    }
+
+    // handle any remaining data in lineBuffer
+    if (lineBuffer.trim()) {
+      if (lineBuffer.startsWith("chunk:")) {
+        resultBuffer += lineBuffer.replace("chunk:", "");
+      } else if (lineBuffer.startsWith("done:")) {
+        onResult(resultBuffer);
       }
     }
   }).catch((err) => {
