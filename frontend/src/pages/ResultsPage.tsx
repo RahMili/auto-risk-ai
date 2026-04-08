@@ -10,6 +10,7 @@ import {
   RadialBar,
 } from "recharts";
 import type { AutomationBand, RiskScore, Recommendations, DecomposedTasks } from "../types/analysis";
+import DownloadButton from "../components/analysis/DownloadButton";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -301,6 +302,8 @@ export default function ResultsPage() {
                 <p className="text-white/30 text-sm">Skills detected</p>
               </div>
             </div>
+            {/* download */}
+            <DownloadButton jobId={report.job_id} />
 
             {/* analyze another */}
             <div className="text-center pt-4">
