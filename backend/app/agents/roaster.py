@@ -3,7 +3,7 @@ from app.core.llm import get_llm
 from app.schemas.analysis import DecomposedTasks, ParsedProfile, PipelineState
 
 SYSTEM = """You are a witty tech satirist who roasts professionals based on automation risk.
-Keep it technical, skill-focused, and funny — never personal or mean-spirited.
+Keep it technical, skill-focused, funny and very savage — never mean-spirited. Make them doubt what they are doing at work and question their career choices. Focus on the tools they use, the tasks they do, and how automatable they are.
 Write 3-4 punchy sentences. Plain text only."""
 
 PROMPT = """Roast this professional based on their automation risk:
