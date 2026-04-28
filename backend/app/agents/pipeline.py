@@ -87,10 +87,11 @@ logger = get_logger(__name__)
 
 async def run_pipeline(
     text: str,
+    user_id: str,
     roast_mode: bool = False,
 ) -> AsyncGenerator[str, None]:
     job_id = str(uuid.uuid4())
-    await create_job(job_id)
+    await create_job(job_id, user_id)
 
     yield f"job_id:{job_id}\n"
 

@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 import json
 import aioboto3
+from boto3.dynamodb.conditions import Key
 from fastapi import UploadFile
 from app.core.config import get_settings
 
@@ -59,11 +60,12 @@ async def get_report_from_s3(s3_key: str) -> dict:
         return json.loads(content)
 
 
-async def create_job(job_id: str) -> None:
+async def create_job(job_id: str, user_id: str) -> None:
     async with session.resource("dynamodb") as dynamodb:
         table = await dynamodb.Table(settings.dynamodb_table_name)
         await table.put_item(Item={
             "job_id": job_id,
+            "user_id": user_id,
             "status": "processing",
             "created_at": ist_now(),
             "updated_at": ist_now(),
@@ -94,3 +96,45 @@ async def get_job(job_id: str) -> dict:
         table = await dynamodb.Table(settings.dynamodb_table_name)
         response = await table.get_item(Key={"job_id": job_id})
         return response.get("Item", {})
+
+
+async def create_user(
+    user_id: str,
+    email: str,
+    password_hash: str,
+    user_name: str = "",
+    name: str = "",
+) -> None:
+    async with session.resource("dynamodb") as dynamodb:
+        table = await dynamodb.Table(settings.dynamodb_users_table_name)
+        await table.put_item(
+            Item={
+                "user_id": user_id,
+                "email": email,
+                "password_hash": password_hash,
+                "user_name": user_name,
+                "name": name,
+                "created_at": ist_now(),
+                "updated_at": ist_now(),
+            },
+            ConditionExpression="attribute_not_exists(email)",
+        )
+
+
+async def get_user(user_id: str) -> dict:
+    async with session.resource("dynamodb") as dynamodb:
+        table = await dynamodb.Table(settings.dynamodb_users_table_name)
+        response = await table.get_item(Key={"user_id": user_id})
+        return response.get("Item", {})
+
+
+async def get_user_by_email(email: str) -> dict:
+    async with session.resource("dynamodb") as dynamodb:
+        table = await dynamodb.Table(settings.dynamodb_users_table_name)
+        response = await table.query(
+            IndexName=settings.dynamodb_users_email_gsi_name,
+            KeyConditionExpression=Key("email").eq(email),
+            Limit=1,
+        )
+        items = response.get("Items", [])
+        return items[0] if items else {}

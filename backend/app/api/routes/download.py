@@ -158,11 +158,18 @@ def build_docx(report: dict) -> bytes:
 async def download_report(
     job_id: str,
     format: str = Query(default="json", enum=["json", "csv", "docx"]),
+    user_id: str = Query(...),
 ):
     # fetch job from DynamoDB
     job = await get_job(job_id)
     if not job:
         raise HTTPException(status_code=404, detail="Job not found.")
+
+    # enforce ownership check - deny if job has no user_id or doesn't match
+    job_user_id = job.get("user_id")
+    if not job_user_id or job_user_id != user_id:
+        raise HTTPException(status_code=403, detail="Access denied: you do not own this report.")
+
     if job.get("status") != "complete":
         raise HTTPException(status_code=400, detail="Report not ready yet.")
 

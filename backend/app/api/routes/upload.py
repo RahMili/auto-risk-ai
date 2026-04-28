@@ -2,7 +2,7 @@ import io
 import uuid
 import PyPDF2
 import docx
-from fastapi import APIRouter, HTTPException, File, UploadFile
+from fastapi import APIRouter, HTTPException, File, UploadFile, Form
 from app.schemas.upload import UploadResponse
 from app.core.aws import save_upload_to_s3
 
@@ -28,7 +28,10 @@ def extract_text_from_txt(content: bytes) -> str:
     return content.decode("utf-8", errors="ignore")
 
 @router.post("/upload", response_model=UploadResponse)
-async def upload_file(file: UploadFile = File(...)):
+async def upload_file(
+    file: UploadFile = File(...),
+    user_id: str = Form(...),
+):
     if file.content_type not in ALLOWED_TYPES:
         raise HTTPException(
             status_code=400, 
@@ -62,5 +65,6 @@ async def upload_file(file: UploadFile = File(...)):
         extracted_text=text,
         char_count=len(text),
         message="File parsed successfully.",
-        s3_key=key
+        s3_key=key,
+        user_id=user_id,
     )

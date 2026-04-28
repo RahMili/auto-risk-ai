@@ -8,4 +8,5 @@ class UploadResponse(BaseModel):
     char_count: int
     message: str
     s3_key: str
+    user_id: str
     
