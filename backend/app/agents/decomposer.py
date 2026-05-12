@@ -9,6 +9,7 @@ and classify each. Return ONLY valid JSON with no extra text or markdown."""
 PROMPT = """Decompose this profile into specific tasks and classify each:
 
 
+
 Role: {role}
 Skills: {skills}
 Responsibilities: {responsibilities}
