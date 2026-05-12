@@ -1,17 +1,17 @@
 import csv
 import io
 import json
-from fastapi import APIRouter, HTTPException, Query
+from app.services.ownership import verify_ownership
 from fastapi.responses import StreamingResponse
 from app.core.aws import get_report_from_s3, get_job
 from docx import Document
 from docx.shared import Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 
+from fastapi import APIRouter, HTTPException, Query
+
+
 router = APIRouter()
-
-
-def build_json(report: dict) -> bytes:
     return json.dumps(report, indent=2).encode("utf-8")
 
 
@@ -165,10 +165,9 @@ async def download_report(
     if not job:
         raise HTTPException(status_code=404, detail="Job not found.")
 
-    # enforce ownership check - deny if job has no user_id or doesn't match
-    job_user_id = job.get("user_id")
-    if not job_user_id or job_user_id != user_id:
-        raise HTTPException(status_code=403, detail="Access denied: you do not own this report.")
+    # enforce ownership check via utility
+    from app.services.ownership import verify_ownership
+    await verify_ownership(job, user_id)
 
     if job.get("status") != "complete":
         raise HTTPException(status_code=400, detail="Report not ready yet.")
