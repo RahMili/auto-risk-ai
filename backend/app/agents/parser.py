@@ -7,6 +7,7 @@ from app.schemas.analysis import PipelineState, ParsedProfile
 SYSTEM = """You are a professional resume parser. Extract structured data from the resume.
 Return ONLY valid JSON with no extra text or markdown backticks."""
 
+
 PROMPT = """Extract the following from this resume and return as JSON:
 {{
   "name": "full name",
