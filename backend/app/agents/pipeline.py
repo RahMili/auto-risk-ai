@@ -72,7 +72,6 @@ def build_graph() -> StateGraph:
     graph.add_edge("generate_roast", "save_report")
     graph.add_edge("skip_roast", "save_report")
     graph.add_edge("save_report", END)
-
     return graph.compile()
 
 
